@@ -4,7 +4,7 @@
     "name": "US Navy Blue Angels",
     "type": "F/A-18E/F Super Hornet",
     "role": "Headliner",
-    "image": "images/blue-angels.jpg",
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%230b0f14'/><stop offset='1' stop-color='%23141a22'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23g)'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='26'>Blue Angels</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>F/A-18E/F Super Hornet</text></svg>",
     "callsign_regex": ["^BA\\d{1,2}$", "BLUE", "ANGEL"],
     "hex": []
   },
@@ -13,8 +13,8 @@
     "name": "USMC C-130J “Fat Albert”",
     "type": "C-130J Super Hercules",
     "role": "Support & demo",
-    "image": "images/fat-albert.jpg",
-    "callsign_regex": ["FAT", "ALBERT", "CNV"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23141a22'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='24'>Fat Albert</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>USMC C-130J</text></svg>",
+    "callsign_regex": ["FAT","ALBERT","CNV"],
     "hex": []
   },
   {
@@ -22,8 +22,8 @@
     "name": "USAF F-35A Lightning II Demo Team",
     "type": "F-35A",
     "role": "Demo",
-    "image": "images/f35a.jpg",
-    "callsign_regex": ["F35", "LIGHT", "DEMO"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%2312181f'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='24'>F-35A Demo</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>USAF Lightning II</text></svg>",
+    "callsign_regex": ["F35","LIGHT","DEMO"],
     "hex": []
   },
   {
@@ -31,8 +31,8 @@
     "name": "KC-46A Pegasus (157th ARW)",
     "type": "KC-46A",
     "role": "Tanker / static",
-    "image": "images/kc46a.jpg",
-    "callsign_regex": ["RCH", "REACH", "PEGASUS", "NH", "TITAN"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23171e27'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='24'>KC-46A Pegasus</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>157th ARW</text></svg>",
+    "callsign_regex": ["RCH","REACH","PEGASUS","NH","TITAN"],
     "hex": []
   },
   {
@@ -40,8 +40,8 @@
     "name": "UH-60 Blackhawk",
     "type": "UH-60",
     "role": "Demo / static",
-    "image": "images/uh60.jpg",
-    "callsign_regex": ["H-60", "UH60", "BLACK"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%2310161d'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='24'>UH-60</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>Blackhawk</text></svg>",
+    "callsign_regex": ["H-60","UH60","BLACK"],
     "hex": []
   },
   {
@@ -49,7 +49,7 @@
     "name": "US Para Commandos",
     "type": "Parachute Team",
     "role": "Jump",
-    "image": "images/para.jpg",
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23141b23'/><text x='50%' y='52%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='22'>US Para Commandos</text></svg>",
     "callsign_regex": [],
     "hex": []
   },
@@ -58,8 +58,8 @@
     "name": "JackAces P-51 Demonstration Team",
     "type": "3× P-51 Mustang",
     "role": "Warbird demo",
-    "image": "images/p51.jpg",
-    "callsign_regex": ["P-51", "P51", "MUSTANG", "MAD", "WITCH", "CHERYL"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23151d25'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='22'>JackAces P-51</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>Warbird Demo</text></svg>",
+    "callsign_regex": ["P-51","P51","MUSTANG","MAD","WITCH","CHERYL"],
     "hex": []
   },
   {
@@ -67,8 +67,8 @@
     "name": "Michael Goulian",
     "type": "Extra 330SC",
     "role": "Aerobatics",
-    "image": "images/goulian.jpg",
-    "callsign_regex": ["N330", "GOULIAN", "EXTRA"],
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23121926'/><text x='50%' y='46%' text-anchor='middle' fill='%23ffc107' font-family='system-ui' font-size='22'>Michael Goulian</text><text x='50%' y='66%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='16'>Extra 330SC</text></svg>",
+    "callsign_regex": ["N330","GOULIAN","EXTRA"],
     "hex": []
   },
   {
@@ -76,16 +76,7 @@
     "name": "Smoke-N-Thunder Jet Car",
     "type": "Jet car (ground act)",
     "role": "Ground demo",
-    "image": "images/jetcar.jpg",
-    "callsign_regex": [],
-    "hex": []
-  },
-  {
-    "id": "third-strike-wingwalking",
-    "name": "Carol Pilon – Third Strike Wingwalking",
-    "type": "Wingwalker",
-    "role": "Ground demo",
-    "image": "images/wingwalking.jpg",
+    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%2310181f'/><text x='50%' y='52%' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='22'>Smoke-N-Thunder (ground)</text></svg>",
     "callsign_regex": [],
     "hex": []
   }
