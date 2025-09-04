@@ -1,4 +1,4 @@
-const CACHE = 'tonh-v1';
+const CACHE = 'tonh-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -20,12 +20,11 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const { request } = e;
-  // Network-first for API; cache-first for app shell.
-  if (request.url.includes('/api/states/all')) return; // don't cache live data
+  // Never cache live ADS-B
+  if (request.url.includes('/api/states/all')) return;
   e.respondWith(
     caches.match(request).then(cached =>
       cached || fetch(request).then(resp => {
-        // Cache Leaflet CSS/JS opportunistically
         if (request.method === 'GET' && resp.status === 200) {
           const copy = resp.clone();
           caches.open(CACHE).then(c => c.put(request, copy));
