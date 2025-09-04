@@ -79,5 +79,14 @@
     "image": "images/jetcar.jpg",
     "callsign_regex": [],
     "hex": []
+  },
+  {
+    "id": "third-strike-wingwalking",
+    "name": "Carol Pilon – Third Strike Wingwalking",
+    "type": "Wingwalker",
+    "role": "Ground demo",
+    "image": "images/wingwalking.jpg",
+    "callsign_regex": [],
+    "hex": []
   }
 ]
