@@ -4,15 +4,18 @@
   <meta charset="utf-8" />
   <title>Thunder Over NH — Performers Only</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+
+  <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='8' fill='%230b0f14'/><text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='28'>✈️</text></svg>">
 
+  <!-- Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
   <style>
-    :root { --bg:#0b0f14; --panel:#111; --text:#eee; --muted:#9aa4b2; --brand:#8ab4f8; --gold:#ffc107; --ok:#16c172; --bad:#ef4444; }
+    :root{--bg:#0b0f14;--panel:#111;--text:#eee;--muted:#9aa4b2;--brand:#8ab4f8;--gold:#ffc107;--ok:#16c172;--bad:#ef4444}
     html,body,#map{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
     a{color:var(--brand)}
     .pill{position:absolute;right:10px;top:10px;z-index:1000;background:#111;color:var(--brand);padding:6px 10px;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
@@ -20,11 +23,13 @@
     .legend b{display:block;margin-bottom:6px}
     .badge{display:inline-block;padding:2px 6px;border-radius:6px;background:#1e293b;margin-right:6px}
     .perf{background:#b28900;color:#000}
+
     /* Hamburger */
     .hamburger{position:absolute;left:10px;top:10px;z-index:1100;width:36px;height:36px;border-radius:10px;background:#111;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer}
     .hamburger span{display:block;width:18px;height:2px;background:#ddd;position:relative}
     .hamburger span::before,.hamburger span::after{content:"";position:absolute;left:0;width:18px;height:2px;background:#ddd}
     .hamburger span::before{top:-6px}.hamburger span::after{top:6px}
+
     /* Drawer */
     .drawer{position:absolute;top:0;left:0;width:82%;max-width:420px;height:100%;background:#0f131a;color:#eee;box-shadow:2px 0 18px rgba(0,0,0,.5);transform:translateX(-100%);transition:transform .25s ease;z-index:1200}
     .drawer.open{transform:translateX(0)}
@@ -36,6 +41,7 @@
     .dot{width:10px;height:10px;border-radius:50%}
     .dot.online{background:var(--ok)} .dot.offline{background:var(--bad)}
     .meta{font-size:12px;color:var(--muted)}
+
     /* Info card */
     .card{position:absolute;left:10px;right:10px;bottom:10px;z-index:1000;background:#0f131a;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.5);display:flex;gap:10px;overflow:hidden}
     .card img{width:120px;height:90px;object-fit:cover;background:#000}
@@ -43,6 +49,8 @@
     .card .title{font-weight:600;margin-bottom:4px}
     .card .sub{color:var(--muted);font-size:12px;margin-bottom:6px}
     .small{font-size:12px;color:var(--muted)}
+
+    /* Tiny debug toggle */
     .toggle{position:absolute;right:10px;top:56px;z-index:1000;background:#111;color:#ddd;padding:6px 8px;border-radius:10px}
   </style>
 </head>
@@ -54,7 +62,7 @@
   <div class="legend">
     <b>Thunder Over NH — Performers</b>
     <div><span class="badge">✈️ Live</span> <span class="badge perf">⭐ Highlight</span></div>
-    <div style="margin-top:6px;font-size:12px;color:#aaa">Free OpenSky data. Some jets may be dark (offline here).</div>
+    <div style="margin-top:6px;font-size:12px;color:#aaa">Free OpenSky data. Some jets may be dark.</div>
   </div>
   <button class="toggle" id="debugBtn" title="Toggle non-roster traffic (debug)">Show all traffic</button>
 
@@ -78,81 +86,63 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     // ---- Constants ----
-    const KPSM = { lat: 43.0735, lon: -70.8207 };                 // Pease ANGB
-    const deltaLat = 0.30, deltaLon = 0.40;                        // ~20–25 nm box
+    const KPSM = { lat: 43.0735, lon: -70.8207 }; // Pease ANGB
+    const deltaLat = 0.30, deltaLon = 0.40;        // ~20–25 nm box
     const BBOX = { lamin: KPSM.lat - deltaLat, lamax: KPSM.lat + deltaLat, lomin: KPSM.lon - deltaLon, lomax: KPSM.lon + deltaLon };
     const API = (b)=>`https://opensky-network.org/api/states/all?lamin=${b.lamin}&lomin=${b.lomin}&lamax=${b.lamax}&lomax=${b.lomax}`;
     const POLL_MS = 5000;
 
     // ---- Map ----
     const map = L.map('map', { zoomControl: true }).setView([KPSM.lat, KPSM.lon], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { maxZoom:18, attribution:'&copy; OpenStreetMap' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'&copy; OpenStreetMap' }).addTo(map);
     L.marker([KPSM.lat, KPSM.lon]).addTo(map).bindPopup('Pease ANGB (KPSM)');
 
     const markers = new Map();  // icao24 -> Leaflet marker
     const statusEl = document.getElementById('status');
     const infoCard = document.getElementById('infoCard');
-    const cardImg = document.getElementById('cardImg');
-    const cardTitle = document.getElementById('cardTitle');
-    const cardSub = document.getElementById('cardSub');
+    const cardImg  = document.getElementById('cardImg');
+    const cardTitle= document.getElementById('cardTitle');
+    const cardSub  = document.getElementById('cardSub');
     const cardNote = document.getElementById('cardNote');
 
     // ---- Roster (from performers.json) ----
-    let ROSTER = [];                  // list of performers
-    const rosterState = new Map();    // id -> {online, matches:[], lastSeen}
-
-    // Debug: show/hide non-roster traffic
+    let ROSTER = [];
+    const rosterState = new Map(); // id -> {online,matches,lastSeen}
     let SHOW_ALL = false;
     document.getElementById('debugBtn').onclick = () => {
       SHOW_ALL = !SHOW_ALL;
       document.getElementById('debugBtn').textContent = SHOW_ALL ? 'Hide all traffic' : 'Show all traffic';
     };
 
-    // Drawer UI
+    // Drawer
     const drawer = document.getElementById('drawer');
     const rosterList = document.getElementById('rosterList');
-    const menuBtn = document.getElementById('menuBtn');
-    document.getElementById('closeDrawer').onclick = () => { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); };
-    menuBtn.onclick = () => { drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); };
+    document.getElementById('closeDrawer').onclick = () => { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); };
+    document.getElementById('menuBtn').onclick = () => { drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); };
 
-    // ---- Helpers ----
-    function makeIcon(hdg, highlighted) {
-      return L.divIcon({
-        className: '',
-        html: `<div style="transform:rotate(${hdg||0}deg);width:22px;height:22px">
-                <svg viewBox="0 0 24 24" width="22" height="22" style="filter:drop-shadow(0 0 2px rgba(0,0,0,.5))">
-                  <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z" fill="${highlighted ? '#FFC107' : '#4DA3FF'}"></path>
-                </svg>
-              </div>`
-      });
+    // Helpers
+    function makeIcon(hdg, highlighted){
+      return L.divIcon({ className:'', html:
+        `<div style="transform:rotate(${hdg||0}deg);width:22px;height:22px">
+           <svg viewBox="0 0 24 24" width="22" height="22" style="filter:drop-shadow(0 0 2px rgba(0,0,0,.5))">
+             <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z" fill="${highlighted?'#FFC107':'#4DA3FF'}"></path>
+           </svg>
+         </div>` });
     }
-
-    function regexMatchAny(str, arr) {
-      if (!str || !arr || !arr.length) return false;
-      const s = String(str).trim();
-      return arr.some(pat => new RegExp(pat, 'i').test(s));
-    }
-
-    function matchStateToPerformer(state, perf) {
-      // OpenSky state vector:
-      // [0]icao24,[1]callsign,[5]lon,[6]lat,[7]baro_alt,[9]velocity,[10]heading
-      const icao24 = state[0] || '';
-      const callsign = (state[1] || '').trim();
-      // 1) hex match
-      if (perf.hex && perf.hex.length && perf.hex.includes(icao24)) return true;
-      // 2) callsign regex
+    function regexMatchAny(str, arr){ if(!str||!arr||!arr.length) return false; const s=String(str).trim(); return arr.some(p=>new RegExp(p,'i').test(s)); }
+    function matchStateToPerformer(st, perf){
+      const icao = st[0]||''; const callsign=(st[1]||'').trim();
+      if (perf.hex && perf.hex.includes(icao)) return true;
       if (perf.callsign_regex && regexMatchAny(callsign, perf.callsign_regex)) return true;
       return false;
     }
-
-    function updateRosterUI() {
-      rosterList.innerHTML = '';
-      ROSTER.forEach(perf => {
+    function updateRosterUI(){
+      rosterList.innerHTML='';
+      ROSTER.forEach(perf=>{
         const st = rosterState.get(perf.id) || { online:false, matches:[], lastSeen:null };
-        const li = document.createElement('div');
-        li.className = 'item';
-        li.innerHTML = `
+        const row = document.createElement('div');
+        row.className='item';
+        row.innerHTML = `
           <div class="dot ${st.online?'online':'offline'}"></div>
           <div style="flex:1">
             <div style="font-weight:600">${perf.name}</div>
@@ -160,105 +150,92 @@
           </div>
           <button style="background:#1b2330;color:#ddd;padding:6px 10px;border-radius:8px;border:none">Open</button>
         `;
-        li.querySelector('button').onclick = () => {
-          if (st.online && st.matches.length) {
-            const m = st.matches[0];
-            const lat = m[6], lon = m[5], hdg = m[10];
-            map.setView([lat, lon], 13, { animate:true });
-            showCard(perf, m);
-          } else {
-            showCard(perf, null); // offline info
-          }
+        row.querySelector('button').onclick = () => {
+          if (st.online && st.matches.length){
+            const m = st.matches[0]; const lat=m[6], lon=m[5], hdg=m[10];
+            map.setView([lat,lon], 13, {animate:true}); showCard(perf, m);
+          } else showCard(perf, null);
           drawer.classList.remove('open');
         };
-        rosterList.appendChild(li);
+        rosterList.appendChild(row);
       });
     }
-
-    function showCard(perf, state) {
-      cardImg.src = perf.image || 'icons/icon-192.png';
+    function showCard(perf, state){
+      cardImg.src = perf.image || '';
       cardImg.alt = perf.name;
       cardTitle.textContent = perf.name;
-      cardSub.textContent = perf.type + (perf.role ? ` • ${perf.role}` : '');
-      if (state) {
+      cardSub.textContent = perf.type + (perf.role?` • ${perf.role}`:'');
+      if (state){
         const altFt = state[7]!=null?Math.round(state[7]*3.28084):'—';
         const spdKt = state[9]!=null?Math.round(state[9]*1.94384):'—';
-        const hdg = state[10] ?? '—';
-        const callsign = (state[1]||'(no callsign)').trim();
-        cardNote.innerHTML = `Online now • Callsign: <b>${callsign}</b> • Alt ${altFt} ft • Spd ${spdKt} kt • Hdg ${hdg}°`;
-      } else {
-        cardNote.textContent = 'Offline (no live ADS-B in the box).';
-      }
-      infoCard.style.display = 'flex';
+        const hdg   = state[10] ?? '—';
+        const cs    = (state[1]||'(no callsign)').trim();
+        cardNote.innerHTML = `Online • Callsign <b>${cs}</b> • Alt ${altFt} ft • Spd ${spdKt} kt • Hdg ${hdg}°`;
+      } else cardNote.textContent = 'Offline (no live ADS-B in the box).';
+      infoCard.style.display='flex';
     }
-
-    function upsertMarker(state, highlighted) {
-      const icao = state[0], cs = (state[1]||'').trim();
-      const lon = state[5], lat = state[6], hdg = state[10];
-      if (lat==null || lon==null) return;
+    function upsertMarker(st, highlighted){
+      const icao=st[0], cs=(st[1]||'').trim(), lon=st[5], lat=st[6], hdg=st[10];
+      if (lat==null||lon==null) return;
       let m = markers.get(icao);
       const icon = makeIcon(hdg, highlighted);
-      if (!m) {
-        m = L.marker([lat, lon], { icon }).addTo(map);
-        markers.set(icao, m);
-      } else { m.setLatLng([lat, lon]); m.setIcon(icon); }
-      const altFt = state[7]!=null?Math.round(state[7]*3.28084):'—';
-      const spdKt = state[9]!=null?Math.round(state[9]*1.94384):'—';
-      m.bindPopup(`<b>${cs || '(no callsign)'}</b><br/>ICAO24: ${icao}<br/>Alt: ${altFt} ft • Spd: ${spdKt} kt<br/>Hdg: ${hdg ?? '—'}°`);
-      m._lastSeen = Date.now();
+      if (!m){ m=L.marker([lat,lon],{icon}).addTo(map); markers.set(icao,m); }
+      else { m.setLatLng([lat,lon]); m.setIcon(icon); }
+      const altFt=st[7]!=null?Math.round(st[7]*3.28084):'—', spdKt=st[9]!=null?Math.round(st[9]*1.94384):'—';
+      m.bindPopup(`<b>${cs||'(no callsign)'}</b><br/>ICAO24: ${icao}<br/>Alt: ${altFt} ft • Spd: ${spdKt} kt<br/>Hdg: ${hdg??'—'}°`);
+      m._lastSeen=Date.now();
     }
-
     function purgeStale(ms=30000){
       const now=Date.now();
       for (const [icao,m] of markers) if (now-(m._lastSeen||0)>ms){ map.removeLayer(m); markers.delete(icao); }
     }
 
-    async function tick() {
-      try {
-        statusEl.textContent = 'Updating…';
-        const res = await fetch(API(BBOX), { cache:'no-store' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        const data = await res.json();
-        const states = data.states || [];
+    async function tick(){
+      try{
+        statusEl.textContent='Updating…';
+        const res = await fetch(API(BBOX), {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data = await res.json(); const states = data.states||[];
 
-        // Reset live matches
-        ROSTER.forEach(p => rosterState.set(p.id, { online:false, matches:[], lastSeen:null }));
+        // Reset roster state
+        ROSTER.forEach(p=>rosterState.set(p.id,{online:false,matches:[],lastSeen:null}));
 
-        // Walk states, attach to performers
-        for (const st of states) {
-          let matched = false;
-          for (const perf of ROSTER) {
-            if (matchStateToPerformer(st, perf)) {
+        // Match states to performers
+        for (const st of states){
+          let matched=false;
+          for (const perf of ROSTER){
+            if (matchStateToPerformer(st, perf)){
               const rs = rosterState.get(perf.id);
-              rs.online = true; rs.matches.push(st); rs.lastSeen = Date.now();
+              rs.online=true; rs.matches.push(st); rs.lastSeen=Date.now();
               upsertMarker(st, true);
-              matched = true;
+              matched=true;
             }
           }
-          // Optionally show non-roster traffic for debugging
           if (!matched && SHOW_ALL) upsertMarker(st, false);
         }
 
         purgeStale();
         updateRosterUI();
         statusEl.textContent = `Live • ${new Date().toLocaleTimeString()}`;
-      } catch (err) {
+      }catch(err){
         console.warn(err);
-        statusEl.textContent = 'Fetch failed (rate limit?). Retrying…';
-      } finally {
+        statusEl.textContent='Fetch failed (rate limit?). Retrying…';
+      }finally{
         setTimeout(tick, POLL_MS);
       }
     }
 
-    // Load roster + start
-    fetch('./performers.json').then(r=>r.json()).then(list=>{
-      ROSTER = list;
-      list.forEach(p=>rosterState.set(p.id,{online:false,matches:[],lastSeen:null}));
-      updateRosterUI();
-      // Register SW for PWA shell
-      if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-      tick();
-    }).catch(e=>{ console.error('Failed to load performers.json', e); });
+    // Boot
+    fetch('./performers.json')
+      .then(r=>r.json())
+      .then(list=>{
+        ROSTER=list;
+        list.forEach(p=>rosterState.set(p.id,{online:false,matches:[],lastSeen:null}));
+        updateRosterUI();
+        if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+        tick();
+      })
+      .catch(e=>console.error('performers.json failed', e));
   </script>
 </body>
 </html>
