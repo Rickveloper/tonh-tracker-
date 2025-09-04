@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Thunder Over NH — Live Tracker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    html, body, #map { height:100%; margin:0; background:#0b0f14; }
+    .legend {
+      position:absolute; top:10px; left:10px; z-index:1000;
+      background:#111; color:#eee; padding:8px 10px; border-radius:10px;
+      box-shadow:0 2px 10px rgba(0,0,0,.4); font:14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    }
+    .legend b { display:block; margin-bottom:6px; }
+    .badge { display:inline-block; padding:2px 6px; border-radius:6px; background:#1e293b; margin-right:6px; }
+    .perf { background:#b28900; color:#000; }
+    .pill {
+      position:absolute; right:10px; top:10px; z-index:1000;
+      background:#111; color:#8ab4f8; padding:6px 10px; border-radius:999px; font:12px system-ui;
+      box-shadow:0 2px 10px rgba(0,0,0,.4);
+    }
+    a { color:#8ab4f8; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="legend">
+    <b>Thunder Over NH — Live</b>
+    <div><span class="badge">✈️ Normal</span> <span class="badge perf">⭐ Highlight</span></div>
+    <div style="margin-top:6px; font-size:12px; color:#aaa">
+      Free data via OpenSky (rate-limited). Some jets may be dark.
+    </div>
+  </div>
+  <div class="pill" id="status">Updating…</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    // --- Show center: Pease ANGB (KPSM) ---
+    const KPSM = { lat: 43.0735, lon: -70.8207 };
+
+    // 20–25 nm box to catch patterns/holds.
+    const deltaLat = 0.30, deltaLon = 0.40;
+    const bbox = {
+      lamin: KPSM.lat - deltaLat,
+      lamax: KPSM.lat + deltaLat,
+      lomin: KPSM.lon - deltaLon,
+      lomax: KPSM.lon + deltaLon
+    };
+
+    // Tweak these as you learn callsigns day-of.
+    const highlightPatterns = [
+      /^BA\d{1,2}$/i,        // ex: BA1..BA7 — adjust as needed
+      /FAT|ALBERT/i,         // Fat Albert
+      /BLUE|ANGEL/i          // any literal “BLUE/ANGEL” text
+      // Add N-numbers here if you get them: /^N123AB$/i
+    ];
+
+    // Build the OpenSky URL for bbox
+    const API = (lamin, lomin, lamax, lomax) =>
+      `https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
+
+    // --- Map ---
+    const map = L.map('map', { zoomControl: true }).setView([KPSM.lat, KPSM.lon], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { maxZoom: 18, attribution: '&copy; OpenStreetMap' }
+    ).addTo(map);
+    L.marker([KPSM.lat, KPSM.lon]).addTo(map).bindPopup('Pease ANGB (KPSM)');
+
+    const markers = new Map();
+    const statusEl = document.getElementById('status');
+
+    function highlight(cs) {
+      if (!cs) return false;
+      return highlightPatterns.some(rx => rx.test(String(cs).trim()));
+    }
+
+    function makeIcon(hdg, isPerf) {
+      return L.divIcon({
+        className: '',
+        html: `
+          <div style="transform: rotate(${hdg||0}deg); width:22px; height:22px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" style="filter: drop-shadow(0 0 2px rgba(0,0,0,.5));">
+              <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4.5L5.5 20l2-7L2 9h7z"
+                fill="${isPerf ? '#FFC107' : '#4DA3FF'}"/>
+            </svg>
+          </div>`
+      });
+    }
+
+    function upsert(state) {
+      const icao = state[0];
+      const callsign = (state[1] || '').trim();
+      const lon = state[5], lat = state[6];
+      const baro = state[7], spd = state[9], hdg = state[10];
+
+      if (lat == null || lon == null) return;
+      const isPerf = highlight(callsign);
+
+      let m = markers.get(icao);
+      const icon = makeIcon(hdg, isPerf);
+      if (!m) {
+        m = L.marker([lat, lon], { icon }).addTo(map);
+        markers.set(icao, m);
+      } else {
+        m.setLatLng([lat, lon]); m.setIcon(icon);
+      }
+      const altFt = baro != null ? Math.round(baro * 3.28084) : '—';
+      const spdKt = spd  != null ? Math.round(spd  * 1.94384) : '—';
+      m._lastSeen = Date.now();
+      m.bindPopup(`<b>${callsign || '(no callsign)'}</b><br/>
+        ICAO24: ${icao}<br/>Alt: ${altFt} ft<br/>Spd: ${spdKt} kt<br/>Hdg: ${hdg ?? '—'}°`);
+    }
+
+    function purgeStale() {
+      const now = Date.now();
+      for (const [icao, m] of markers) {
+        if ((now - (m._lastSeen || 0)) > 30000) {
+          map.removeLayer(m); markers.delete(icao);
+        }
+      }
+    }
+
+    async function tick() {
+      try {
+        statusEl.textContent = 'Updating…';
+        const url = API(bbox.lamin, bbox.lomin, bbox.lamax, bbox.lomax);
+        const res = await fetch(url, { cache:'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        (data.states || []).forEach(upsert);
+        purgeStale();
+        statusEl.textContent = `Live • ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        statusEl.textContent = 'Fetch failed (rate limit?). Retrying…';
+        console.warn(err);
+      } finally {
+        setTimeout(tick, 5000);
+      }
+    }
+
+    // Register Service Worker for PWA shell
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(console.warn);
+    }
+
+    tick();
+  </script>
+</body>
+</html>
