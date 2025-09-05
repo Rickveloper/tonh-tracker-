@@ -1,4 +1,4 @@
-const CACHE = 'tonh-v5';
+const CACHE = 'tonh-v6';
 const ASSETS = [
   './',
   './index.html',

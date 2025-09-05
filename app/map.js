@@ -2,9 +2,8 @@ let LRef = null;
 const markers = new Map(); // icao24 -> marker
 
 export async function createMap(center) {
-    if (!LRef) {
-        LRef = (await import('https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.esm.js')).default;
-    }
+    LRef = window.L;
+    if (!LRef) throw new Error('Leaflet not loaded');
     const map = LRef.map('map', { zoomControl: true }).setView([center.lat, center.lon], 12);
     LRef.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
     LRef.marker([center.lat, center.lon]).addTo(map).bindPopup('Pease ANGB (KPSM)');

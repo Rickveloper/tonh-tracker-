@@ -121,9 +121,13 @@ async function boot() {
         let list = staticRoster;
         try {
             const res = await fetch('./performers.json', { cache: 'no-store' });
-            list = await res.json();
-            validateRoster(list);
-        } catch { }
+            const parsed = await res.json();
+            validateRoster(parsed);
+            list = parsed;
+        } catch (e) {
+            console.warn('performers.json invalid; using embedded roster', e);
+            toast('performers.json invalid (using embedded)');
+        }
         roster = list;
         list.forEach(p => rosterState.set(p.id, { online: false, matches: [], lastSeen: null }));
         updateRosterUI(roster, rosterState, (perf) => showCard(perf, null));
@@ -135,8 +139,7 @@ async function boot() {
         };
     } catch (e) {
         console.error('performers.json failed', e);
-        toast('performers.json error. Check JSON validity.');
-        return;
+        toast('performers.json error. Continuing with empty roster.');
     }
 
     // Map after roster is shown
