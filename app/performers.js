@@ -1,0 +1,13 @@
+export default [
+    { "id": "blue-angels", "name": "US Navy Blue Angels", "type": "F/A-18E/F Super Hornet", "role": "Headliner", "image": "images/blue-angels.jpg", "callsign_regex": ["^BA\\d{1,2}$", "BLUE", "ANGEL"], "hex": [] },
+    { "id": "fat-albert", "name": "USMC C-130J “Fat Albert”", "type": "C-130J Super Hercules", "role": "Support & demo", "image": "images/fat-albert.jpg", "callsign_regex": ["FAT", "ALBERT", "CNV"], "hex": [] },
+    { "id": "f35a-demo", "name": "USAF F-35A Lightning II Demo Team", "type": "F-35A", "role": "Demo", "image": "images/f35a.jpg", "callsign_regex": ["F35", "LIGHT", "DEMO"], "hex": [] },
+    { "id": "kc46a", "name": "KC-46A Pegasus (157th ARW)", "type": "KC-46A", "role": "Tanker / static", "image": "images/kc46a.jpg", "callsign_regex": ["RCH", "REACH", "PEGASUS", "NH", "TITAN"], "hex": [] },
+    { "id": "uh60", "name": "UH-60 Blackhawk", "type": "UH-60", "role": "Demo / static", "image": "images/uh60.jpg", "callsign_regex": ["H-60", "UH60", "BLACK"], "hex": [] },
+    { "id": "para-commandos", "name": "US Para Commandos", "type": "Parachute Team", "role": "Jump", "image": "images/para.jpg", "callsign_regex": [], "hex": [] },
+    { "id": "jackaces-p51", "name": "JackAces P-51 Demonstration Team", "type": "3× P-51 Mustang", "role": "Warbird demo", "image": "images/p51.jpg", "callsign_regex": ["P-51", "P51", "MUSTANG", "MAD", "WITCH", "CHERYL"], "hex": [] },
+    { "id": "michael-goulian", "name": "Michael Goulian", "type": "Extra 330SC", "role": "Aerobatics", "image": "images/goulian.jpg", "callsign_regex": ["N330", "GOULIAN", "EXTRA"], "hex": [] },
+    { "id": "smoke-n-thunder", "name": "Smoke-N-Thunder Jet Car", "type": "Jet car (ground act)", "role": "Ground demo", "image": "images/jetcar.jpg", "callsign_regex": [], "hex": [] }
+];
+
+

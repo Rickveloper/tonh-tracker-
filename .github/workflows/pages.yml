@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Ensure correct content types
+        run: |
+          file --mime-type manifest.webmanifest || true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -33,5 +36,13 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Print Pages URL
+        run: |
+          echo "Pages URL: ${{ steps.deployment.outputs.page_url }}"
+      - name: Verify health endpoint
+        run: |
+          URL="${{ steps.deployment.outputs.page_url }}health.html"; \
+          echo "Checking $URL"; \
+          curl -I -sS "$URL" | cat
 
 

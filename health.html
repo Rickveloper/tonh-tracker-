@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TONH Health</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; connect-src 'self' https://opensky-network.org https://*.adsbexchange.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self';" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='8' fill='%230b0f14'/><text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='28'>✈️</text></svg>">
+    <style>
+        body {
+            font: 14px system-ui;
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 16px
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 4px
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Health</h1>
+    <div id="status">Checking…</div>
+    <button id="runCheck" style="margin-top:10px">Run check</button>
+    <script type="module">
+        import { fetchStates as fetchOpenSky } from './app/providers/opensky.js';
+        const KPSM = { lat: 43.0735, lon: -70.8207 };
+        const deltaLat = 0.30, deltaLon = 0.40;
+        const BBOX = { lamin: KPSM.lat - deltaLat, lamax: KPSM.lat + deltaLat, lomin: KPSM.lon - deltaLon, lomax: KPSM.lon + deltaLon };
+        function run() {
+            const t0 = performance.now();
+            document.getElementById('status').textContent = 'Checking…';
+            fetchOpenSky(BBOX).then(states => {
+                const dt = Math.round(performance.now() - t0);
+                document.getElementById('status').textContent = `Provider: OpenSky • OK • ${states.length} states • ${dt} ms`;
+            }).catch(err => {
+                document.getElementById('status').textContent = `Provider: OpenSky • ERROR • ${String(err)}`;
+            });
+        }
+        document.getElementById('runCheck').onclick = run;
+        run();
+    </script>
+</body>
+<!-- eof -->
