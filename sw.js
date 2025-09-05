@@ -1,4 +1,4 @@
-const CACHE = 'tonh-v6';
+const CACHE = 'tonh-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -23,7 +23,11 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const { request } = event;
-  if (request.url.includes('/api/states/all')) return;
+  if (
+    request.url.includes('/api/states/all') ||
+    request.url.includes('opensky-network.org') ||
+    request.url.includes('adsbexchange.com')
+  ) return; // never cache API
   event.respondWith(
     caches.match(request).then(cached =>
       cached || fetch(request).then(resp => {

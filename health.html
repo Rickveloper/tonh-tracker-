@@ -38,9 +38,14 @@
             document.getElementById('status').textContent = 'Checking…';
             fetchOpenSky(BBOX).then(states => {
                 const dt = Math.round(performance.now() - t0);
-                document.getElementById('status').textContent = `Provider: OpenSky • OK • ${states.length} states • ${dt} ms`;
+                const ts = new Date().toISOString();
+                const msg = `Provider: OpenSky • ${states.length} states • ${dt} ms • ${ts}`;
+                document.getElementById('status').textContent = msg;
+                console.log('health', { provider: 'OpenSky', latencyMs: dt, statesCount: states.length, lastOk: ts });
             }).catch(err => {
-                document.getElementById('status').textContent = `Provider: OpenSky • ERROR • ${String(err)}`;
+                const ts = new Date().toISOString();
+                document.getElementById('status').textContent = `Provider: OpenSky • ERROR • ${String(err)} • ${ts}`;
+                console.log('health', { provider: 'OpenSky', error: String(err), at: ts });
             });
         }
         document.getElementById('runCheck').onclick = run;

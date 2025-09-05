@@ -5,7 +5,9 @@ const cardSub = document.getElementById('cardSub');
 const cardNote = document.getElementById('cardNote');
 
 export function showCard(perf, state) {
-    cardImg.src = perf.image || '';
+    const fallback = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 120'><rect width='160' height='120' fill='%230b0f14'/><text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle' fill='%238ab4f8' font-family='system-ui' font-size='22'>No image</text></svg>";
+    cardImg.onerror = () => { cardImg.onerror = null; cardImg.src = fallback; };
+    cardImg.src = perf.image || fallback;
     cardImg.alt = perf.name;
     cardTitle.textContent = perf.name;
     cardSub.textContent = perf.type + (perf.role ? ` • ${perf.role}` : '');
